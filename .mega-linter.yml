@@ -22,3 +22,6 @@ REPOSITORY_SEMGREP_RULESETS:
   - p/default
   - p/r2c-security-audit
   - p/python
+
+PRE_COMMANDS:
+  - command: pip install -r requirements.txt

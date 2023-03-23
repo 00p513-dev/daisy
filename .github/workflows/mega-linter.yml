@@ -28,8 +28,7 @@ jobs:
       - name: MegaLinter
         id: ml
         # Python-specific linters only
-        # uses: oxsecurity/megalinter/flavors/python@v6
-        uses: oxsecurity/megalinter@v6.20.1
+        uses: oxsecurity/megalinter/flavors/python@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
