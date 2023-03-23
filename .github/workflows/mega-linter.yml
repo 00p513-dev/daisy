@@ -38,7 +38,10 @@ jobs:
         env:
           VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # DISABLE: COPYPASTE,SPELL # Uncomment to disable copy-paste and spell checks
+          REPOSITORY_CHECKOV_ARGUMENTS: --skip-check CKV2_GHA_1 # Permissions check makes no sense in CI environment
+          ENABLE_LINTERS: PYTHON_PYRIGHT,PYTHON_MYPY,PYTHON_BANDIT,PYTHON_FLAKE8,PYTHON_PYLINT
+          DISABLE_LINTERS: SPELL_CSPELL # cspell doesn't work very well
+          REPOSITORY_SEMGREP_RULESETS: ["p/comment", "p/cwe-top-25","p/default", "p/r2c-security-audit", "p/python"]
 
       # Upload results
       - name: Archive production artifacts
