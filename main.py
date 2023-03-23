@@ -27,12 +27,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     if user is not None and update.message is not None:
         await update.message.reply_html(
-            rf"{random.choice(greetings)} {user.mention_html()}!"  # nosec this isn't a cryptographic function
+            # this isn't a cryptographic function
+            rf"{random.choice(greetings)} {user.mention_html()}!"  # nosec
         )
 
 
 async def strike_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a list of strikes. Get Amy to update it because there isn't a strike api anywhere"""
+    """Send a list of strikes. Get Amy to update it because there isn't a strike api
+    anywhere"""
     if update.message is not None:
         await update.message.reply_html(
             """<b>18th March</b> - RMT TOCs

@@ -8,7 +8,7 @@ import requests
 
 async def tflbus_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send the status of a TfL bus route."""
-    if update.message is None:
+    if update.message is None or update.message.text is None:
         return
 
     try:
@@ -42,6 +42,8 @@ async def tflbus_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 async def tflstatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send the status of a TfL line."""
+    if update.message is None or update.message.text is None:
+        return
 
     # TfL line to get the status for
     message_args = update.message.text.split(' ')

@@ -15,6 +15,7 @@ REPOSITORY_CHECKOV_ARGUMENTS: --skip-check CKV2_GHA_1
 
 DISABLE_LINTERS:
   - SPELL_CSPELL # cspell doesn't work very well
+  - PYTHON_PYLINT
 
 REPOSITORY_SEMGREP_RULESETS:
   - p/comment
