@@ -31,7 +31,7 @@ jobs:
         uses: oxsecurity/megalinter/flavors/python@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PAT: ${{secrets:PAT}}
+          PAT: ${{secrets.PAT}}
 
       # Upload results
       - name: Archive production artifacts
