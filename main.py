@@ -2,24 +2,11 @@
 
 import logging
 import random
+from typing import Optional
 
 import daisySecrets
-from telegram import __version__ as TG_VER
-
-try:
-    from telegram import __version_info__
-except ImportError:
-    __version_info__ = (0, 0, 0, 0, 0)  # type: ignore[assignment]
-
-if __version_info__ < (20, 0, 0, "alpha", 1):
-    raise RuntimeError(
-        f"This example is not compatible with your current PTB version {TG_VER}. To view the "
-        f"{TG_VER} version of this example, "
-        f"visit https://docs.python-telegram-bot.org/en/v{TG_VER}/examples.html"
-    )
-
-from telegram import ForceReply, Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram import Update, User
+from telegram.ext import Application, CommandHandler, ContextTypes
 
 import rtt
 import tfl
@@ -35,26 +22,30 @@ logger = logging.getLogger(__name__)
 # context.
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
-    user = update.effective_user
+    user: Optional[User] = update.effective_user
     greetings = ["Hewwo", "Haiii", "OwO It's an", "meow meow"]
-    await update.message.reply_html(
-        rf"{random.choice(greetings)} {user.mention_html()}!"
-    )
+
+    if user is not None and update.message is not None:
+        await update.message.reply_html(
+            rf"{random.choice(greetings)} {user.mention_html()}!"  # nosec this isn't a cryptographic function
+        )
 
 
 async def strike_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a list of strikes. Get Amy to update it because there isnt a strike api anywhere"""
-    await update.message.reply_html(
-        """<b>18th March</b> - RMT TOCs
+    """Send a list of strikes. Get Amy to update it because there isn't a strike api anywhere"""
+    if update.message is not None:
+        await update.message.reply_html(
+            """<b>18th March</b> - RMT TOCs
 <b>30th March</b> - RMT TOCs
 <b>1st April</b> - RMT TOCs"""
-    )
+        )
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /help is issued."""
-    await update.message.reply_html(
-        """
+    if update.message is not None:
+        await update.message.reply_html(
+            """
 OwO henwo! This is a Tewegwam bot Amewia has been wowking on.
 
 <b>Commands:</b>

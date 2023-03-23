@@ -5,8 +5,11 @@ import daisySecrets
 
 import requests
 
+
 async def tflbus_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send the status of a TfL bus route."""
+    if update.message is None:
+        return
 
     try:
         message_args = update.message.text.split(' ')
