@@ -1,3 +1,4 @@
+"""Fetch information about current trains from realtimetrains.com"""
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
@@ -6,7 +7,11 @@ from requests.auth import HTTPBasicAuth
 
 import daisySecrets
 
+
 async def train_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.message is None:
+        return
+
     message_args = update.message.text.split(' ')
 
     origin = message_args[1].upper()
