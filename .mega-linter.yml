@@ -6,12 +6,12 @@ APPLY_FIXES: all
 # Permissions check makes no sense in CI environment
 REPOSITORY_CHECKOV_ARGUMENTS: --skip-check CKV2_GHA_1
 
-ENABLE_LINTERS:
-  - PYTHON_PYRIGHT
-  - PYTHON_MYPY
-  - PYTHON_BANDIT
-  - PYTHON_FLAKE8
-  - PYTHON_PYLINT
+#ENABLE_LINTERS:
+#  - PYTHON_PYRIGHT
+#  - PYTHON_MYPY
+#  - PYTHON_BANDIT
+#  - PYTHON_FLAKE8
+#  - PYTHON_PYLINT
 
 DISABLE_LINTERS:
   - SPELL_CSPELL # cspell doesn't work very well
