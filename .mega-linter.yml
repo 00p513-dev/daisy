@@ -1,7 +1,7 @@
 ---
 
 # Apply automatic fixes
-APPLY_FIXES: all
+APPLY_FIXES: none
 
 # Permissions check makes no sense in CI environment
 REPOSITORY_CHECKOV_ARGUMENTS: --skip-check CKV2_GHA_1
@@ -25,3 +25,10 @@ REPOSITORY_SEMGREP_RULESETS:
 
 PRE_COMMANDS:
   - command: pip install -r requirements.txt
+    venv: pylint
+  - command: pip install -r requirements.txt
+    venv: pyright
+  - command: pip install -r requirements.txt
+    venv: flake8
+  - command: pip install -r requirements.txt
+    venv: bandit
