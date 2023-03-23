@@ -25,10 +25,3 @@ REPOSITORY_SEMGREP_RULESETS:
 
 PRE_COMMANDS:
   - command: pip install -r /github/workspace/requirements.txt
-    venv: pylint
-  - command: pip install -r /github/workspace/requirements.txt
-    venv: pyright
-  - command: pip install -r /github/workspace/requirements.txt
-    venv: flake8
-  - command: pip install -r /github/workspace/requirements.txt
-    venv: bandit

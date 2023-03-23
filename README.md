@@ -9,7 +9,7 @@ Daisy relies on the python-telegram-bot module. Can be installed with the follow
 
 Daisy also relies on having API keys for Telegram, and Realtime Trains. Create a daisySecrets.py with the following variable names:
 
-```
+```python
 rttuser
 rttpass
 bot_token
