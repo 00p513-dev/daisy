@@ -17,12 +17,12 @@ DISABLE_LINTERS:
   - SPELL_CSPELL # cspell doesn't work very well
   - PYTHON_PYLINT
 
-REPOSITORY_SEMGREP_RULESETS:
-  - p/comment
-  - p/cwe-top-25
-  - p/default
-  - p/r2c-security-audit
-  - p/python
+REPOSITORY_SEMGREP_ARGUMENTS: >-
+  -c p/comment
+  -c p/cwe-top-25
+  -c p/default
+  -c p/r2c-security-audit
+  -c p/python
 
 PRE_COMMANDS:
   - command: pip install -r /github/workspace/requirements.txt
