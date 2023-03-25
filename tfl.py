@@ -82,7 +82,7 @@ async def tflstatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             # Parse the response as JSON
             line_status = response.json()[0]['lineStatuses'][0]
             line_status_summary = line_status['statusSeverityDescription']
-            replyText = f"Currently the {line_id.capitalize()} line has {line_status_summary}."
+            replyText = f"Currently the {line_id} line has {line_status_summary}."
             if 'reason' in line_status:
                 replyText = replyText + "\n\n" + line_status["reason"]
 
