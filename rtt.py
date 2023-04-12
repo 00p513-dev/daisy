@@ -32,6 +32,7 @@ async def train_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         time = service['locationDetail']['gbttBookedDeparture']
         operator = service['atocCode']
         dest = service['locationDetail']["destination"][0]['description']
-        replyText = replyText + "\n" + f"{time} [{operator}] {dest}"
+        platform = service['locationDetail']["platform"]
+        replyText = replyText + "\n" + f"{time} Plt {platform} [{operator}] {dest}"
 
     await update.message.reply_text(replyText)
