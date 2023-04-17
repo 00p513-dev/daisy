@@ -18,7 +18,7 @@ async def update_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     # Get the local and remote references
     local_ref = repo.head.commit
-    remote_ref = repo.remotes.origin.refs.main
+    remote_ref = repo.remotes.origin.refs.main.commit
 
     # Fetch the latest changes from the remote repository
     await update.message.reply_text("Checking for updates...")
