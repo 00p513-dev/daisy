@@ -53,13 +53,10 @@ OwO henwo! This is a Tewegwam bot Amewia has been wowking on.
 /tflbus - Gives the status of a given TfL route
 
 
-/tflstatus - Gives the status of a specified TfL rail route. If none specified, displays all TfL lines.
+/status - Gives the status of a specified rail route. If none specified, displays all TfL lines.
 
 
 /train - Gives the next trains between two mainline stations.
-
-
-/strikes - Gives a list of upcoming strikes. May be inaccurate as Amelia has to update it from time to time (its cursed).
 """)
 
 
