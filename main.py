@@ -40,16 +40,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         rf"{random.choice(greetings)} {user.mention_html()}!"
     )
 
-
-async def strike_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a list of strikes. Get Amy to update it because there isnt a strike api anywhere"""
-    await update.message.reply_html(
-        """<b>18th March</b> - RMT TOCs
-<b>30th March</b> - RMT TOCs
-<b>1st April</b> - RMT TOCs"""
-    )
-
-
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /help is issued."""
     await update.message.reply_html(
@@ -82,8 +72,8 @@ def main() -> None:
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("codename", lineageos.codename_command))
-    application.add_handler(CommandHandler("strikes", strike_command))
     application.add_handler(CommandHandler("tflstatus", tfl.tflstatus_command))
+    application.add_handler(CommandHandler("status", tfl.tflstatus_command))
     application.add_handler(CommandHandler("tflbus", tfl.tflbus_command))
     application.add_handler(CommandHandler("train", rtt.train_command))
 
