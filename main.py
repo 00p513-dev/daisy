@@ -21,7 +21,7 @@ if __version_info__ < (20, 0, 0, "alpha", 1):
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
-import lineageos, rtt, tfl
+import lineageos, rtt, tfl, updater
 
 # Enable logging
 logging.basicConfig(
@@ -73,6 +73,7 @@ def main() -> None:
     application.add_handler(CommandHandler("status", tfl.tflstatus_command))
     application.add_handler(CommandHandler("tflbus", tfl.tflbus_command))
     application.add_handler(CommandHandler("train", rtt.train_command))
+    application.add_handler(CommandHandler("update", updater.update_command))
 
     # Run the bot until the user presses Ctrl-C
     application.run_polling()
