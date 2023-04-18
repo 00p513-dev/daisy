@@ -33,9 +33,15 @@ async def train_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         operator = service['atocCode']
         dest = service['locationDetail']["destination"][0]['description']
         try:
-            platform = service['locationDetail']["platform"]
+            platform = "Plt " + service['locationDetail']["platform"]
         except:
-            platform = "UNK"
-        replyText = replyText + "\n" + f"{time} Plt {platform} [{operator}] {dest}"
+            if service["serviceType"] == "bus":
+                platform == "Bus"
+            elif service["serviceType"] == "ship":
+                platform == "Ship"
+            else:
+                platform = "Plt UNK"
+        
+        replyText = replyText + "\n" + f"{time} {platform} [{operator}] {dest}"
 
     await update.message.reply_text(replyText)
