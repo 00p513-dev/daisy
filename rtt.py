@@ -36,9 +36,9 @@ async def train_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             platform = "Plt " + service['locationDetail']["platform"]
         except:
             if service["serviceType"] == "bus":
-                platform == "Bus"
+                platform = "Bus"
             elif service["serviceType"] == "ship":
-                platform == "Ship"
+                platform = "Ship"
             else:
                 platform = "Plt UNK"
         
