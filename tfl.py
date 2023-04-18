@@ -80,6 +80,15 @@ async def tflstatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE, 
         line_status_url = 'https://api.tfl.gov.uk/line/{line}/status'
         line_id = message_args[1]
 
+        if line_id == "overground":
+            line_id = "london-overground"
+        elif line_id == "gwr":
+            line_id = "great-western-railway"
+        elif line_id == "trams":
+            line_id = "tram"
+        elif line_id == "swr":
+            line_id = "south-western-railway"
+
         # Make a request to the TfL API to get the line status
         response = requests.get(line_status_url.format(line=line_id))
 
