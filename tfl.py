@@ -65,11 +65,10 @@ async def tflstatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             for line in all_lines_status:
                 disruptions = line['lineStatuses']
                 if disruptions:
-                    if line['name'] == "Tram":
-                        line['name'] = "Trams"
+                    lineName = fixLineName(line['name'])
 
                     status = disruptions[0]['statusSeverityDescription']
-                    status_output += "\n" + line['name'] + ": " + status
+                    status_output += "\n" + lineName + ": " + status
 
             await update.message.reply_html(f"{status_output}")
         else:
@@ -100,14 +99,13 @@ async def tflstatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE, 
 
             replyText = "Currently "
 
-            isTube = not (response.json()[0]["modeName"] == "national-rail" or
-                          response.json()[0]["modeName"] == "elizabeth-line" or
-                          response.json()[0]["modeName"] == "overground")
+            isTube = (response.json()[0]["modeName"] == "tube")
 
-            if isTube or (response.json()[0]["modeName"] == "elizabeth-line"):  # Thanks Boris for this terrible name
+            if isTube or response.json()[0]["modeName"] == "elizabeth-line" or response.json()[0]["modeName"] == "tram":  # Thanks Boris for this terrible name
                 replyText += "the "
 
-            replyText += response.json()[0]['name']
+            lineName = fixLineName(response.json()[0]['name'])
+            replyText += lineName
 
             if isTube:
                 replyText += " line"
@@ -129,3 +127,9 @@ async def tflstatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             await update.message.reply_text(replyText)
         else:
             await update.message.reply_text(f"Error retrieving line status: {response.status_code}")
+
+def fixLineName(name):
+    if name == "Tram":
+        name = "Trams"
+
+    return name
