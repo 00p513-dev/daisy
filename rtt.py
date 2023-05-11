@@ -1,4 +1,5 @@
 from telegram import ForceReply, Update
+from telegram.constants import ParseMode
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 import requests
@@ -62,7 +63,10 @@ async def train_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             platform = "Ship"
         else:
             platform = "Plt UNK"
+        
+        for i in range(13 - len(platform)):
+            platform += " "
 
-        replyText = replyText + "\n" + f"{time} {platform} [{operator}] {dest}"
+        replyText = replyText + "\n" + f"`{time} {platform} [{operator}] {dest}`"
 
-    await update.message.reply_text(replyText)
+    await update.message.reply_text(replyText, parse_mode=ParseMode.MARKDOWN)
