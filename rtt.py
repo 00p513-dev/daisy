@@ -38,6 +38,9 @@ async def train_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         if service["serviceType"] == "train":
             platform = "Plt " + service['locationDetail']["platform"]
 
+            if len(platform) == 5:
+                platform += " "
+            
             try:
                 if service['locationDetail']["serviceLocation"] == "AT_PLAT":
                     platform += " (at)"
