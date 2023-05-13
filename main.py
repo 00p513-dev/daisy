@@ -21,7 +21,7 @@ if __version_info__ < (20, 0, 0, "alpha", 1):
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
-import lineageos, rtt, tfl, updater
+import davwheat, lineageos, rtt, tfl, updater
 
 # Enable logging
 logging.basicConfig(
@@ -68,6 +68,7 @@ def main() -> None:
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("crs", davwheat.crs_command))
     application.add_handler(CommandHandler("codename", lineageos.codename_command))
     application.add_handler(CommandHandler("tflstatus", tfl.tflstatus_command))
     application.add_handler(CommandHandler("status", tfl.tflstatus_command))
