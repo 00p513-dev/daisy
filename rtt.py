@@ -35,37 +35,46 @@ async def train_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         time = service['locationDetail']['gbttBookedDeparture']
         operator = service['atocCode']
         dest = service['locationDetail']["destination"][0]['description']
-        if service["serviceType"] == "train":
-            platform = "Plt " + service['locationDetail']["platform"]
+        
+        try:
+            if service["serviceType"] == "train":
+                platform = "Plt " + service['locationDetail']["platform"]
 
-            if len(platform) == 5:
-                platform += " "
-            
-            try:
-                if service['locationDetail']["serviceLocation"] == "AT_PLAT":
-                    platform += " (at)"
-                elif service['locationDetail']["serviceLocation"] == "APPR_PLAT":
-                    platform += " (appr)"
-                elif service['locationDetail']["serviceLocation"] == "APPR_STAT":
-                    platform += " (appr)"
-                elif service['locationDetail']["serviceLocation"] == "DEP_PREP":
-                    platform += " (dep)"
-                elif service['locationDetail']["serviceLocation"] == "DEP_READY":
-                    platform += " (dep)"
-                else:
-                    platform += " (" + service['locationDetail']["serviceLocation"] + ")"
-            except:
-                if service['locationDetail']['platformConfirmed']:
-                    platform += " (conf)"
-                else:
-                    platform += " (ind)"
+                if len(platform) == 5:
+                    platform += " "
+                
+                try:
+                    if service['locationDetail']["serviceLocation"] == "AT_PLAT":
+                        platform += " (at)"
+                    elif service['locationDetail']["serviceLocation"] == "APPR_PLAT":
+                        platform += " (appr)"
+                    elif service['locationDetail']["serviceLocation"] == "APPR_STAT":
+                        platform += " (appr)"
+                    elif service['locationDetail']["serviceLocation"] == "DEP_PREP":
+                        platform += " (dep)"
+                    elif service['locationDetail']["serviceLocation"] == "DEP_READY":
+                        platform += " (dep)"
+                    else:
+                        platform += " (" + service['locationDetail']["serviceLocation"] + ")"
+                except:
+                    if service['locationDetail']['platformConfirmed']:
+                        platform += " (conf)"
+                    else:
+                        platform += " (ind)"
 
-        elif service["serviceType"] == "bus":
-            platform = "Bus"
-        elif service["serviceType"] == "ship":
-            platform = "Ship"
-        else:
+            elif service["serviceType"] == "bus":
+                platform = "Bus"
+            elif service["serviceType"] == "ship":
+                platform = "Ship"
+            else:
+                platform = "Plt UNK"
+
+            print(platform)
+        
+        except:
+            print('failed to find platform')
             platform = "Plt UNK"
+            print(platform)
         
         for i in range(13 - len(platform)):
             platform += " "
