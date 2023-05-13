@@ -50,6 +50,9 @@ OwO henwo! This is a Tewegwam bot Amewia has been wowking on.
 /codename - Gives the name of a device, when given its codename
 
 
+/crs - Looks up a given station's CRS code.
+
+
 /tflbus - Gives the status of a given TfL route
 
 
