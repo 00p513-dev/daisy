@@ -18,10 +18,10 @@ if __version_info__ < (20, 0, 0, "alpha", 1):
         f"visit https://docs.python-telegram-bot.org/en/v{TG_VER}/examples.html"
     )
 
-from telegram import ForceReply, Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram import ForceReply, InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes, MessageHandler, filters
 
-import davwheat, lineageos, rtt, tfl, updater
+import davwheat, lineageos, pizza, rtt, tfl, updater
 
 # Enable logging
 logging.basicConfig(
@@ -53,6 +53,9 @@ OwO henwo! This is a Tewegwam bot Amewia has been wowking on.
 /crs - Looks up a given station's CRS code.
 
 
+/pizza <size> <type> - Order yourself a pizza for a given size and type.
+
+
 /tflbus - Gives the status of a given TfL route
 
 
@@ -62,6 +65,23 @@ OwO henwo! This is a Tewegwam bot Amewia has been wowking on.
 /train - Gives the next trains between two mainline stations. Use CRS codes.
 """)
 
+async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.callback_query
+
+    if query.data == 'confirmPizza':
+        # Get the stored message ID
+        message_id = context.bot_data.get(update.effective_chat.id)
+
+        # Edit the message to indicate the order has been confirmed
+        await query.message.reply_text("Your order has been delivered. Enjoy your pizza!")
+        await query.message.edit_reply_markup()
+
+    elif query.data == 'cancelPizza':
+        await query.message.reply_text("Your order has been cancelled.")
+        await query.message.edit_reply_markup()
+
+    # Answer the callback query to remove the "Pending" status
+    await query.answer()
 
 def main() -> None:
     """Start the bot."""
@@ -73,11 +93,14 @@ def main() -> None:
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("crs", davwheat.crs_command))
     application.add_handler(CommandHandler("codename", lineageos.codename_command))
+    application.add_handler(CommandHandler("pizza", pizza.pizza_command))
+    application.add_handler(CommandHandler("train", rtt.train_command))
     application.add_handler(CommandHandler("tflstatus", tfl.tflstatus_command))
     application.add_handler(CommandHandler("status", tfl.tflstatus_command))
     application.add_handler(CommandHandler("tflbus", tfl.tflbus_command))
-    application.add_handler(CommandHandler("train", rtt.train_command))
     application.add_handler(CommandHandler("update", updater.update_command))
+
+    application.add_handler(CallbackQueryHandler(handle_callback_query))
 
     # Run the bot until the user presses Ctrl-C
     application.run_polling()
