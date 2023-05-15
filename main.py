@@ -56,7 +56,7 @@ OwO henwo! This is a Tewegwam bot Amewia has been wowking on.
 /pizza <size> <type> - Order yourself a pizza for a given size and type.
 
 
-/tflbus - Gives the status of a given TfL route
+/tflbus - Gives the next buses from a given TfL bus stop, using the 5 digit code for the SMS service.
 
 
 /status - Gives the status of a specified rail route. If none specified, displays all TfL lines.
