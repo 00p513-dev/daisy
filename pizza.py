@@ -15,11 +15,11 @@ async def pizza_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         except:
             pass
 
-        pizzaPrice = (pizzaSize * 1.5) + 4
+        pizzaPrice = (pizzaSize * 1.50) + 4
         pizzaPrice = format(pizzaPrice,'.2f')
 
         # Create the order message
-        order_message = f"Your order:\nPizza: {pizzaType}\nSize: {pizzaSize}\nPrice: ${pizzaPrice}"
+        order_message = f"Your order:\nPizza: {pizzaType}\nSize: {pizzaSize}\nPrice: £{pizzaPrice}"
 
         # Create inline keyboard buttons
         confirm_button = InlineKeyboardButton("I want it!", callback_data="confirmPizza")
