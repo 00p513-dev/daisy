@@ -3,40 +3,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
 
 import daisySecrets
 
-import requests
-
-
-async def tflbus_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send the status of a TfL bus route."""
-
-    try:
-        message_args = update.message.text.split(' ')
-        route_number = message_args[1]
-
-        # TfL API endpoint for getting the status of a bus route
-        bus_route_status_url = f'https://api.tfl.gov.uk/Line/{route_number}/Status'
-
-        # Make a request to the TfL API to get the status of the bus route
-        response = requests.get(bus_route_status_url)
-
-        # Check if the request was successful
-        if response.status_code == requests.codes.ok:
-            # Parse the response as JSON
-            bus_route_status = response.json()
-            # Get the status severity description of the bus route
-            bus_line_status = bus_route_status[0]['lineStatuses'][0]
-            status = bus_line_status['statusSeverityDescription']
-            if 'reason' in bus_line_status:
-                status = status + " - " + bus_line_status['reason']
-            # Return the status of the bus route
-            await update.message.reply_text(status)
-        else:
-            # Return an error message if the request was not successful
-            await update.message.reply_text(f"Error retrieving bus route status: {response.status_code}")
-    except Exception as e:
-        print(e)
-        await update.message.reply_text("Oh n-nyo t-that d-didn't wowk! Sowwy Wowwy")
-
+import datetime, requests, time
 
 async def tflstatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE, mode="tfl") -> None:
     """Send the status of transit using TfL APIs."""
@@ -133,3 +100,78 @@ def fixLineName(name):
         name = "Trams"
 
     return name
+
+async def tflbus_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    message_args = update.message.text.split(' ')
+
+    # Replace 'STOP_CODE' with the 5-digit bus stop code you want to retrieve data for
+    try:
+        stop_code = int(message_args[1])
+    except:
+        await update.message.reply_text("Failed to read stop code")
+        return
+
+    # Base URL for the TFL Unified API
+    base_url = 'https://api.tfl.gov.uk'
+
+    # Endpoint for the Search API to resolve the stop code to Naptan ID
+    search_url = f'{base_url}/StopPoint/Search?query={stop_code}'
+
+    # Make the API request to resolve the stop code to Naptan ID
+    response = requests.get(search_url)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        # Parse the JSON response
+        stop_points = response.json()
+        
+        # Extract the first stop point (assuming exact match)
+        if len(stop_points) > 0:
+            stop_point = stop_points['matches'][0]
+            naptan_id = stop_point['id']
+            
+            # Endpoint for the StopPoint API with the resolved Naptan ID
+            stoppoint_url = f'{base_url}/StopPoint/{naptan_id}/Arrivals'
+            
+            # Make the API request to retrieve bus times
+            response = requests.get(stoppoint_url)
+
+            if response.status_code == 200:
+                # Parse the JSON response
+                bus_times = response.json()
+                
+                if len(bus_times) == 0:
+                    await update.message.reply_text(f"No bus times available for {stop_point['name']}")
+                    return
+                
+                replyText = f"Next buses for {stop_point['name']}"
+
+                # Extract relevant information
+                for bus in bus_times:
+                    bus_id = bus['vehicleId']
+                    destination = bus['destinationName']
+                    line = bus['lineName']
+                    try:
+                        expected_arrival = time.strftime('%M', time.gmtime(bus['timeToStation']))
+                        expected_arrival += " minutes"
+                    except:
+                        try:
+                            arrival_time = datetime.fromisoformat(bus['expectedArrival'])
+                            current_time = datetime.utcnow()
+                            expected_arrival = (arrival_time - current_time).total_seconds() / 60
+                        except:
+                            expected_arrival = "unknown"
+                    
+                    replyText += f"\n{line} {destination}, Expected Arrival: {expected_arrival}"
+                
+                await update.message.reply_text(replyText)
+                return
+            else:
+                await update.message.reply_text('Error occurred while retrieving bus times.')
+                return
+        else:
+            await update.message.reply_text('No stop point found for the specified stop code.')
+            return
+    else:
+        await update.message.reply_text('Error occurred while resolving the stop code to Naptan ID.')
+        return
