@@ -59,7 +59,7 @@ OwO henwo! This is a Tewegwam bot Amewia has been wowking on.
 /status - Gives the status of a specified rail route. If none specified, displays all TfL lines.
 
 
-/train - Gives the next trains between two mainline stations.
+/train - Gives the next trains between two mainline stations. Use CRS codes.
 """)
 
 
