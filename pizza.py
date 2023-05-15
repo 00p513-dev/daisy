@@ -31,5 +31,7 @@ async def pizza_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         # Send the order message with the inline keyboard
         await update.message.reply_text(order_message, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
 
-    except (IndexError, ValueError):
+    except (IndexError):
         await update.message.reply_text('There are not enough arguments')
+    except (ValueError):
+        await update.message.reply_text("I'm confused. Did you forget to mention the size of pizza you want?")
