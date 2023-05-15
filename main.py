@@ -77,7 +77,7 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
         await query.message.edit_reply_markup()
 
     elif query.data == 'cancelPizza':
-        await query.message.reply_text("Your order has been cancelled.")
+        await query.message.reply_text("I agree, that was a terrible idea. Your order has been cancelled.")
         await query.message.edit_reply_markup()
 
     # Answer the callback query to remove the "Pending" status
