@@ -11,9 +11,12 @@ async def tflstatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE, 
     # TfL line to get the status for
     message_args = update.message.text.split(' ')
     if (len(message_args) == 1) or (message_args[1] == "nr"):
-        if message_args[1] == "nr":
-            all_lines_status_url = 'https://api.tfl.gov.uk/line/mode/overground,elizabeth-line,national-rail/status'
-        else:
+        try:
+            if message_args[1] == "nr":
+                service = "nr"
+                all_lines_status_url = 'https://api.tfl.gov.uk/line/mode/overground,elizabeth-line,national-rail/status'
+        except:
+            service = "tfl"
             all_lines_status_url = 'https://api.tfl.gov.uk/line/mode/tube,overground,elizabeth-line,dlr,tram/status'
 
         # Make a request to the TfL API to get the status of all lines
@@ -24,7 +27,7 @@ async def tflstatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             # Parse the response as JSON
             all_lines_status = response.json()
             # Iterate over each line and display the current status
-            if message_args[1] == "nr":
+            if service == "nr":
                 status_output = "<b>Current status on all National Rail services</b>"
             else:
                 status_output = "<b>Current status on all TfL services</b>"
