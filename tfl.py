@@ -148,6 +148,12 @@ async def tflbus_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                     return
                 
                 replyText = f"Next buses for {stop_point['name']}"
+                try:
+                    replyText += f" Stop {stop_point['stopLetter']} \n"
+                except:
+                    replyText += "\n"
+
+                sortedBus = {}
 
                 # Extract relevant information
                 for bus in bus_times:
@@ -155,18 +161,21 @@ async def tflbus_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                     destination = bus['destinationName']
                     line = bus['lineName']
                     try:
-                        expected_arrival = time.strftime('%M', time.gmtime(bus['timeToStation']))
-                        expected_arrival += " minutes"
+                        expected_arrival = int(time.strftime('%M', time.gmtime(bus['timeToStation'])))     
                     except:
                         try:
                             arrival_time = datetime.fromisoformat(bus['expectedArrival'])
                             current_time = datetime.utcnow()
-                            expected_arrival = (arrival_time - current_time).total_seconds() / 60
+                            expected_arrival = int((arrival_time - current_time).total_seconds() / 60)
                         except:
-                            expected_arrival = "unknown"
+                            expected_arrival = 0
                     
-                    replyText += f"\n{line} {destination}, Expected Arrival: {expected_arrival}"
+                    sortedBus[bus_id] = {"arrival": expected_arrival, "destination": destination, "line": line}
                 
+                sortedBus = dict(sorted(sortedBus.items(), key=lambda item: item[1]["arrival"]))
+
+                for bus in sortedBus:
+                    replyText += "\n" + str(sortedBus[bus]["arrival"]) + " minutes " + sortedBus[bus]["line"] + " " + sortedBus[bus]["destination"]
                 await update.message.reply_text(replyText)
                 return
             else:
