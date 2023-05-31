@@ -11,9 +11,27 @@ import daisySecrets
 async def train_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message_args = update.message.text.split(' ')
 
-    origin = message_args[1].upper()
-    destination = message_args[2].upper()
+    try:
+        origin = message_args[1].upper()
+    except:
+        await update.message.reply_text("Please specify a departure station")
+        return
+    
+    try:
+        destination = message_args[2].upper()
+    except:
+        await update.message.reply_text("Please specify a destination station")
+        return
 
+    try:
+        mode = message_args[3].upper()
+        if mode == "-V":
+            mode = "V"
+        elif mode != "V":
+            mode = "N"
+    except:
+        mode = "N"
+    
     url = f"https://api.rtt.io/api/v1/json/search/{origin}/to/{destination}"
     response = requests.get(url, auth=HTTPBasicAuth(
         daisySecrets.rttuser, daisySecrets.rttpass))
@@ -35,6 +53,11 @@ async def train_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         time = service['locationDetail']['gbttBookedDeparture']
         operator = service['atocCode']
         dest = service['locationDetail']["destination"][0]['description']
+
+        try:
+            realTime = service['locationDetail']['realtimeDeparture']
+        except:
+            realTime = service['locationDetail']['gbttBookedDeparture']
         
         try:
             if service["serviceType"] == "train":
@@ -43,24 +66,25 @@ async def train_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                 if len(platform) == 5:
                     platform += " "
                 
-                try:
-                    if service['locationDetail']["serviceLocation"] == "AT_PLAT":
-                        platform += " (at)"
-                    elif service['locationDetail']["serviceLocation"] == "APPR_PLAT":
-                        platform += " (appr)"
-                    elif service['locationDetail']["serviceLocation"] == "APPR_STAT":
-                        platform += " (appr)"
-                    elif service['locationDetail']["serviceLocation"] == "DEP_PREP":
-                        platform += " (dep)"
-                    elif service['locationDetail']["serviceLocation"] == "DEP_READY":
-                        platform += " (dep)"
-                    else:
-                        platform += " (" + service['locationDetail']["serviceLocation"] + ")"
-                except:
-                    if service['locationDetail']['platformConfirmed']:
-                        platform += " (conf)"
-                    else:
-                        platform += " (ind)"
+                if mode == "V":
+                    try:
+                        if service['locationDetail']["serviceLocation"] == "AT_PLAT":
+                            platform += " (at)"
+                        elif service['locationDetail']["serviceLocation"] == "APPR_PLAT":
+                            platform += " (appr)"
+                        elif service['locationDetail']["serviceLocation"] == "APPR_STAT":
+                            platform += " (appr)"
+                        elif service['locationDetail']["serviceLocation"] == "DEP_PREP":
+                            platform += " (dep)"
+                        elif service['locationDetail']["serviceLocation"] == "DEP_READY":
+                            platform += " (dep)"
+                        else:
+                            platform += " (" + service['locationDetail']["serviceLocation"] + ")"
+                    except:
+                        if service['locationDetail']['platformConfirmed']:
+                            platform += " (conf)"
+                        else:
+                            platform += " (ind)"
 
             elif service["serviceType"] == "bus":
                 platform = "Bus"
@@ -68,17 +92,22 @@ async def train_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                 platform = "Ship"
             else:
                 platform = "Plt UNK"
-
-            print(platform)
         
         except:
             print('failed to find platform')
             platform = "Plt UNK"
-            print(platform)
         
-        for i in range(13 - len(platform)):
+        if mode == "V":
+            length = 13
+        else:
+            length = 5
+        
+        for i in range(length - len(platform)):
             platform += " "
 
-        replyText = replyText + "\n" + f"`{time} {platform} [{operator}] {dest}`"
+        if mode == "N":
+            replyText = replyText + "\n" + f"`{time} {platform} {dest}`"
+        if mode == "V":
+            replyText = replyText + "\n" + f"`{time} ({realTime}) {platform} [{operator}] {dest}`"
 
     await update.message.reply_text(replyText, parse_mode=ParseMode.MARKDOWN)
