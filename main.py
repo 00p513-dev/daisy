@@ -13,7 +13,7 @@ except ImportError:
 
 if __version_info__ < (20, 0, 0, "alpha", 1):
     raise RuntimeError(
-        f"This example is not compatible with your current PTB version {TG_VER}. To view the "
+        f"This program is not compatible with your current PTB version {TG_VER}. To view the "
         f"{TG_VER} version of this example, "
         f"visit https://docs.python-telegram-bot.org/en/v{TG_VER}/examples.html"
     )
@@ -73,7 +73,7 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
         message_id = context.bot_data.get(update.effective_chat.id)
 
         # Edit the message to indicate the order has been confirmed
-        await query.message.reply_text("Your order has been delivered. Enjoy your pizza!")
+        await query.message.reply_text("Your order has been delivered. Enjoy your pizza!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("Leave a tip", url="https://monzo.me/memediatek")]]))
         await query.message.edit_reply_markup()
 
     elif query.data == 'cancelPizza':

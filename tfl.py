@@ -113,6 +113,14 @@ async def tflbus_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     except:
         await update.message.reply_text("Failed to read stop code")
         return
+    
+    try:
+        mode = message_args[2]
+        mode = mode.lower()
+        if mode == "-v" or mode == "v":
+            mode = "v"
+    except:
+        mode = "n"
 
     # Base URL for the TFL Unified API
     base_url = 'https://api.tfl.gov.uk'
@@ -175,7 +183,10 @@ async def tflbus_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 sortedBus = dict(sorted(sortedBus.items(), key=lambda item: item[1]["arrival"]))
 
                 for bus in sortedBus:
-                    replyText += "\n" + str(sortedBus[bus]["arrival"]) + " minutes " + sortedBus[bus]["line"] + " " + sortedBus[bus]["destination"]
+                    if mode == "v":
+                        replyText += "\n" + str(sortedBus[bus]["arrival"]) + " minutes " + sortedBus[bus]["line"] + " " + sortedBus[bus]["destination"] + " (" + bus + ")"
+                    else:
+                        replyText += "\n" + str(sortedBus[bus]["arrival"]) + " minutes " + sortedBus[bus]["line"] + " " + sortedBus[bus]["destination"]
                 await update.message.reply_text(replyText)
                 return
             else:
