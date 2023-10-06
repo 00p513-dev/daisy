@@ -1,16 +1,11 @@
-from telegram import ForceReply, Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+import requests
+import datetime
+import time
 
-import daisySecrets
-
-import datetime, requests, time
-
-async def tflstatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE, mode="tfl") -> None:
-    """Send the status of transit using TfL APIs."""
-
-    # TfL line to get the status for
-    message_args = update.message.text.split(' ')
-    if (len(message_args) == 1) or (message_args[1] == "nr"):
+# Define the command to get TfL status
+async def tflstatus_command(ctx, mode="tfl"):
+    message_args = ctx.message.content.split(' ')
+    if (len(message_args) == 1) or (message_args[1] == "nr") or (message_args[1] == "mainline") or (message_args[1] == "trains"):
         try:
             if message_args[1] == "nr":
                 service = "nr"
@@ -19,18 +14,15 @@ async def tflstatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             service = "tfl"
             all_lines_status_url = 'https://api.tfl.gov.uk/line/mode/tube,overground,elizabeth-line,dlr,tram/status'
 
-        # Make a request to the TfL API to get the status of all lines
         response = requests.get(all_lines_status_url)
 
-        # Check if the request was successful
         if response.status_code == requests.codes.ok:
-            # Parse the response as JSON
             all_lines_status = response.json()
-            # Iterate over each line and display the current status
+
             if service == "nr":
-                status_output = "<b>Current status on all National Rail services</b>"
+                status_output = "Current status on all National Rail services"
             else:
-                status_output = "<b>Current status on all TfL services</b>"
+                status_output = "Current status on all TfL services"
 
             for line in all_lines_status:
                 disruptions = line['lineStatuses']
@@ -40,12 +32,11 @@ async def tflstatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                     status = disruptions[0]['statusSeverityDescription']
                     status_output += "\n" + lineName + ": " + status
 
-            await update.message.reply_html(f"{status_output}")
+            await ctx.send(status_output)
         else:
-            await update.message.reply_text(f"Error retrieving line status: {response.status_code}")
+            await ctx.send(f"Error retrieving line status: {response.status_code}")
 
     else:
-        # TfL API endpoint for getting the line status
         line_status_url = 'https://api.tfl.gov.uk/line/{line}/status'
         line_id = message_args[1]
 
@@ -58,12 +49,9 @@ async def tflstatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE, 
         elif line_id == "swr":
             line_id = "south-western-railway"
 
-        # Make a request to the TfL API to get the line status
         response = requests.get(line_status_url.format(line=line_id))
 
-        # Check if the request was successful
         if response.status_code == requests.codes.ok:
-            # Parse the response as JSON
             line_status = response.json()[0]['lineStatuses'][0]
             line_status_summary = line_status['statusSeverityDescription']
 
@@ -71,7 +59,7 @@ async def tflstatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE, 
 
             isTube = (response.json()[0]["modeName"] == "tube")
 
-            if isTube or response.json()[0]["modeName"] == "elizabeth-line" or response.json()[0]["modeName"] == "tram":  # Thanks Boris for this terrible name
+            if isTube or response.json()[0]["modeName"] == "elizabeth-line" or response.json()[0]["modeName"] == "tram" or response.json()[0]["modeName"] == "dlr":
                 replyText += "the "
 
             lineName = fixLineName(response.json()[0]['name'])
@@ -94,24 +82,25 @@ async def tflstatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             if 'reason' in line_status:
                 replyText = replyText + "\n\n" + line_status["reason"]
 
-            await update.message.reply_text(replyText)
+            await ctx.send(replyText)
         else:
-            await update.message.reply_text(f"Error retrieving line status: {response.status_code}")
+            await ctx.send(f"Error retrieving line status: {response.status_code}")
 
+# Helper function to fix line names
 def fixLineName(name):
     if name == "Tram":
         name = "Trams"
 
     return name
 
-async def tflbus_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message_args = update.message.text.split(' ')
+# Define the command to get TFL bus times
+async def tflbus_command(ctx):
+    message_args = ctx.message.content.split(' ')
 
-    # Replace 'STOP_CODE' with the 5-digit bus stop code you want to retrieve data for
     try:
         stop_code = int(message_args[1])
     except:
-        await update.message.reply_text("Failed to read stop code")
+        await ctx.send("Failed to read stop code")
         return
     
     try:
@@ -122,37 +111,25 @@ async def tflbus_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     except:
         mode = "n"
 
-    # Base URL for the TFL Unified API
     base_url = 'https://api.tfl.gov.uk'
-
-    # Endpoint for the Search API to resolve the stop code to Naptan ID
     search_url = f'{base_url}/StopPoint/Search?query={stop_code}'
 
-    # Make the API request to resolve the stop code to Naptan ID
     response = requests.get(search_url)
 
-    # Check if the request was successful
     if response.status_code == 200:
-        # Parse the JSON response
         stop_points = response.json()
         
-        # Extract the first stop point (assuming exact match)
         if len(stop_points) > 0:
             stop_point = stop_points['matches'][0]
             naptan_id = stop_point['id']
-            
-            # Endpoint for the StopPoint API with the resolved Naptan ID
             stoppoint_url = f'{base_url}/StopPoint/{naptan_id}/Arrivals'
-            
-            # Make the API request to retrieve bus times
             response = requests.get(stoppoint_url)
 
             if response.status_code == 200:
-                # Parse the JSON response
                 bus_times = response.json()
                 
                 if len(bus_times) == 0:
-                    await update.message.reply_text(f"No bus times available for {stop_point['name']}")
+                    await ctx.send(f"No bus times available for {stop_point['name']}")
                     return
                 
                 replyText = f"Next buses for {stop_point['name']}"
@@ -163,7 +140,6 @@ async def tflbus_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
                 sortedBus = {}
 
-                # Extract relevant information
                 for bus in bus_times:
                     bus_id = bus['vehicleId']
                     destination = bus['destinationName']
@@ -184,17 +160,17 @@ async def tflbus_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
                 for bus in sortedBus:
                     if mode == "v":
-                        replyText += "\n" + str(sortedBus[bus]["arrival"]) + " minutes " + sortedBus[bus]["line"] + " " + sortedBus[bus]["destination"] + " (" + bus + ")"
+                        replyText += f"{sortedBus[bus]['arrival']} minutes {sortedBus[bus]['line']} {sortedBus[bus]['destination']} ({bus})\n"
                     else:
-                        replyText += "\n" + str(sortedBus[bus]["arrival"]) + " minutes " + sortedBus[bus]["line"] + " " + sortedBus[bus]["destination"]
-                await update.message.reply_text(replyText)
+                        replyText += f"{sortedBus[bus]['arrival']} minutes {sortedBus[bus]['line']} {sortedBus[bus]['destination']}\n"
+                await ctx.send(replyText)
                 return
             else:
-                await update.message.reply_text('Error occurred while retrieving bus times.')
+                await ctx.send('Error occurred while retrieving bus times.')
                 return
         else:
-            await update.message.reply_text('No stop point found for the specified stop code.')
+            await ctx.send('No stop point found for the specified stop code.')
             return
     else:
-        await update.message.reply_text('Error occurred while resolving the stop code to Naptan ID.')
+        await ctx.send('Error occurred while resolving the stop code to Naptan ID.')
         return
