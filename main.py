@@ -39,7 +39,7 @@ async def crs(ctx, *args): await davwheat.crs_command(ctx, *args)
 async def train(ctx, *args): await rtt.train_command(ctx, *args)
 
 @bot.command()
-async def status(ctx, *args): await tfl.tflstatus_command(ctx, *args)
+async def status(ctx, *args): await tfl.tflstatus_command(ctx, logger, *args)
 
 @bot.command()
 async def tflbus(ctx, *args): await tfl.tflbus_command(ctx, *args)

@@ -1,9 +1,10 @@
 import requests
 import datetime
 import time
+import logging
 
 # Define the command to get TfL status
-async def tflstatus_command(ctx, mode="tfl"):
+async def tflstatus_command(ctx, logger, *args):
     message_args = ctx.message.content.split(' ')
     if (len(message_args) == 1) or (message_args[1] == "nr") or (message_args[1] == "mainline") or (message_args[1] == "trains"):
         try:
@@ -38,16 +39,7 @@ async def tflstatus_command(ctx, mode="tfl"):
 
     else:
         line_status_url = 'https://api.tfl.gov.uk/line/{line}/status'
-        line_id = message_args[1]
-
-        if line_id == "overground":
-            line_id = "london-overground"
-        elif line_id == "gwr":
-            line_id = "great-western-railway"
-        elif line_id == "trams":
-            line_id = "tram"
-        elif line_id == "swr":
-            line_id = "south-western-railway"
+        line_id = fixLineID(message_args[1])
 
         response = requests.get(line_status_url.format(line=line_id))
 
@@ -84,7 +76,11 @@ async def tflstatus_command(ctx, mode="tfl"):
 
             await ctx.send(replyText)
         else:
-            await ctx.send(f"Error retrieving line status: {response.status_code}")
+            logger.warn(f"Failed to retrieve line status: {response.status_code}, {response.url}")
+            if response.status_code == 404:
+                await ctx.send("Line not found")
+            else:
+                await ctx.send(f"Error retrieving line status: {response.status_code}")
 
 # Helper function to fix line names
 def fixLineName(name):
@@ -92,6 +88,20 @@ def fixLineName(name):
         name = "Trams"
 
     return name
+
+def fixLineID(line_id):
+    if line_id == "overground":
+        line_id = "london-overground"
+    elif line_id == "gwr":
+        line_id = "great-western-railway"
+    elif line_id == "trams":
+        line_id = "tram"
+    elif line_id == "swr" or line_id=="southwestern":
+        line_id = "south-western-railway"
+    elif line_id == "hammersmith" or line_id == "hammersmithcity" or line_id == "hc" or line_id == "hammersmith-and-city" or line_id == "hammersmithandcity":
+        line_id = "hammersmith-city"
+    
+    return line_id
 
 # Define the command to get TFL bus times
 async def tflbus_command(ctx):
