@@ -5,8 +5,8 @@ import requests
 
 LINEAGEOS_ENDPOINT = 'https://download.lineageos.org/api/v2/'
 
-def getDeviceInfo(codename):
-    response = requests.get(LINEAGEOS_ENDPOINT + f'devices/{codename}')
+def getDeviceInfo(codename, endpoint=LINEAGEOS_ENDPOINT):
+    response = requests.get(endpoint + f'devices/{codename}')
 
     if response.status_code == 400:
         return 400
@@ -16,12 +16,12 @@ def getDeviceInfo(codename):
     data = response.json()
     return data
 
-async def codename_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def codename_command(update: Update, context: ContextTypes.DEFAULT_TYPE, endpoint=LINEAGEOS_ENDPOINT) -> None:
     message_args = update.message.text.split(' ')
 
     codename = message_args[1]
 
-    data = getDeviceInfo(codename)
+    data = getDeviceInfo(codename, endpoint)
 
     if data == 400:
         await update.message.reply_text(f"The device with codename '{codename}' is not supported by LineageOS.")
@@ -35,12 +35,12 @@ async def codename_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     await update.message.reply_text(f"{device_oem} {device_name}")
 
-async def lineage_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def lineage_command(update: Update, context: ContextTypes.DEFAULT_TYPE, endpoint=LINEAGEOS_ENDPOINT) -> None:
     message_args = update.message.text.split(' ')
 
     codename = message_args[1]
 
-    data = getDeviceInfo(codename)
+    data = getDeviceInfo(codename, endpoint)
 
     if data == 400:
         await update.message.reply_text(f"The device with codename '{codename}' is not supported by LineageOS.")

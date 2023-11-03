@@ -2,6 +2,7 @@
 
 import logging
 import random
+from functools import partial
 
 import daisySecrets
 from telegram import __version__ as TG_VER
@@ -94,6 +95,8 @@ def main() -> None:
     application.add_handler(CommandHandler("crs", davwheat.crs_command))
     application.add_handler(CommandHandler("codename", lineageos.codename_command))
     application.add_handler(CommandHandler("lineage", lineageos.lineage_command))
+    application.add_handler(CommandHandler("lmo", partial(lineageos.lineage_command, endpoint="https://get.libremobileos.com/api/v2/")))
+    application.add_handler(CommandHandler("nolan", partial(lineageos.lineage_command, endpoint="https://updater.oddsolutions.us/api/v2/")))
     application.add_handler(CommandHandler("pizza", pizza.pizza_command))
     application.add_handler(CommandHandler("train", rtt.train_command))
     application.add_handler(CommandHandler("tflstatus", tfl.tflstatus_command))
