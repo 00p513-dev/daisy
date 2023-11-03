@@ -93,6 +93,7 @@ def main() -> None:
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("crs", davwheat.crs_command))
     application.add_handler(CommandHandler("codename", lineageos.codename_command))
+    application.add_handler(CommandHandler("lineage", lineageos.lineage_command))
     application.add_handler(CommandHandler("pizza", pizza.pizza_command))
     application.add_handler(CommandHandler("train", rtt.train_command))
     application.add_handler(CommandHandler("tflstatus", tfl.tflstatus_command))
