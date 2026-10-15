@@ -1,6 +1,6 @@
 import requests
 
-import daisySecrets
+BASE_URL = "http://84.8.144.158:8080"
 
 async def train_command(ctx, *args):
     try:
@@ -24,15 +24,21 @@ async def train_command(ctx, *args):
     except:
         mode = "N"
     
-    url = f"https://api.rtt.io/api/v1/json/search/{origin}/to/{destination}"
-    response = requests.get(url, auth=(daisySecrets.rttuser, daisySecrets.rttpass))
-    data = response.json()
-
     try:
-        services = data['services']
+        departures = requests.get(f"{BASE_URL}/api/departures", params={"crs": origin, "window": 180}).json()['services']
+        arrivals = requests.get(f"{BASE_URL}/api/arrivals", params={"crs": destination, "window": 480}).json()['services']
     except:
         await ctx.send("Something went wrong, you probably have requested a non-existent station")
         return
+
+    # Keep departures that also arrive at the destination later (same UID on both boards)
+    arrival_times = {s['uid']: s['scheduledArrival'] or s['scheduledTime'] for s in arrivals}
+    services = []
+    for s in departures:
+        dep = s['scheduledDeparture'] or s['scheduledTime']
+        arr = arrival_times.get(s['uid'])
+        if arr and (int(arr[:2]) * 60 + int(arr[3:]) - int(dep[:2]) * 60 - int(dep[3:])) % 1440 < 720:
+            services.append(s)
 
     if not services:
         await ctx.send("No trains available.")
@@ -41,53 +47,23 @@ async def train_command(ctx, *args):
     reply_text = ""
 
     for service in services[:5]:
-        time = service['locationDetail']['gbttBookedDeparture']
+        time = service['scheduledDeparture'] or service['scheduledTime']
         operator = service['atocCode']
-        dest = service['locationDetail']["destination"][0]['description']
+        dest = service['destName'] or service['destCrs']
 
-        try:
-            real_time = service['locationDetail']['realtimeDeparture']
-        except:
-            real_time = service['locationDetail']['gbttBookedDeparture']
-        
-        try:
-            if service["serviceType"] == "train":
-                platform = "Plt " + service['locationDetail']["platform"]
+        if service['isCancelled']:
+            real_time = "Canc"
+        else:
+            real_time = service['actualTime'] or time
 
-                if len(platform) == 5:
-                    platform += " "
-                
-                if mode == "V":
-                    try:
-                        if service['locationDetail']["serviceLocation"] == "AT_PLAT":
-                            platform += " (at)"
-                        elif service['locationDetail']["serviceLocation"] == "APPR_PLAT":
-                            platform += " (appr)"
-                        elif service['locationDetail']["serviceLocation"] == "APPR_STAT":
-                            platform += " (appr)"
-                        elif service['locationDetail']["serviceLocation"] == "DEP_PREP":
-                            platform += " (dep)"
-                        elif service['locationDetail']["serviceLocation"] == "DEP_READY":
-                            platform += " (dep)"
-                        else:
-                            platform += " (" + service['locationDetail']["serviceLocation"] + ")"
-                    except:
-                        if service['locationDetail']['platformConfirmed']:
-                            platform += " (conf)"
-                        else:
-                            platform += " (ind)"
+        platform = "Plt " + service['platform'] if service['platform'] else "Plt -"
 
-            elif service["serviceType"] == "bus":
-                platform = "Bus"
-            elif service["serviceType"] == "ship":
-                platform = "Ship"
-            else:
-                platform = "Plt UNK"
-        
-        except:
-            print('failed to find platform')
-            platform = "Plt UNK"
-        
+        if len(platform) == 5:
+            platform += " "
+
+        if mode == "V":
+            platform += " (conf)" if service['platformConfirmed'] else " (ind)"
+
         if mode == "V":
             length = 13
         else:

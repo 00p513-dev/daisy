@@ -1,7 +1,7 @@
 import daisySecrets, discord, logging, random
 from discord.ext import commands
 
-import thecounter, davwheat, lineageos, tfl
+import thecounter, davwheat, lineageos, tfl, rtt
 
 # Initialize bot
 intents = discord.Intents.default()
@@ -55,9 +55,8 @@ async def hentai(ctx):
     """Sends hentai"""
     await ctx.send(f'[Enjoy your hentai](https://forum.djs3rl.com/media/hentai-s3rl-original-video.179/)', suppress_embeds=True)
 
-# Pending migrating to Jaisal's API
-#@bot.command()
-#async def train(ctx, *args): await rtt.train_command(ctx, *args)
+@bot.command()
+async def train(ctx, *args): await rtt.train_command(ctx, *args)
 
 @bot.command()
 async def tflstatus(ctx, *args):
